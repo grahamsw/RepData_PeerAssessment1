@@ -3,16 +3,40 @@ title: "Reproducible Research: Peer Assessment 1"
 output: 
   html_document:
     keep_md: true
+author: grahams@pipeline.com
 ---
 
+```{r echo=TRUE}
+library(ggplot2)
+library(lubridate)
+```
 
 ## Loading and preprocessing the data
 
+I read the csv without saving the unzipped file.
+```{r echo=TRUE}
+df <- read.csv(unz("activity.zip", "activity.csv"))
+
+
+df$dt <- ymd(df$date)
+
+head(df)
+```
 
 
 ## What is mean total number of steps taken per day?
+```{r echo=TRUE}
+ms <- tapply(df$steps, df$dt, sum, na.rm=TRUE)
 
+```
+histogram (not a graph of steps against days, but of num days per (binned) num steps)
 
+``` {r echo=TRUE}
+qplot(ms, xlab='steps per day', ylab='frequency', binwidth=1000)
+```
+
+mean steps per day = ```r mean(ms) ```
+median steps per day = ```r median(ms) ```
 
 ## What is the average daily activity pattern?
 
