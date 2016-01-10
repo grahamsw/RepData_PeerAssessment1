@@ -33,7 +33,7 @@ ms <- r <- aggregate(steps~dt, data=df, sum, na.rm=TRUE)
 histogram (not a graph of steps against days, but of num days per (binned) num steps)
 
 ``` {r echo=TRUE}
-qplot(ms$steps, xlab='steps per day', ylab='frequency',  binwidth=100)
+qplot(ms$steps, xlab='steps per day', ylab='frequency',  binwidth=1000)
 ```
 
 mean steps per day = ```r formatC(mean(ms$steps), format='d', big.mark=',') ```
@@ -86,7 +86,7 @@ now draw the new histogram
 ms2 <- r <- aggregate(steps~dt, data=df2, sum)
 
 
-qplot(ms2$steps, xlab='steps per day', ylab='frequency',  binwidth=100)
+qplot(ms2$steps, xlab='steps per day', ylab='frequency',  binwidth=1000)
 ```
 
 mean steps per day = ```r formatC(mean(ms2$steps), format='d', big.mark=',')```
@@ -95,3 +95,11 @@ median steps per day = ```r formatC(median(ms2$steps), format='d', big.mark=',')
 I don't see any difference here, which makes me think I've made a mistake.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+``` {r echo=TRUE}
+df2$IsWeekend <- ifelse(weekdays(df2$dt) %in% c('Saturday', 'Sunday'), 'Weekend', 'Not Weekend')
+
+
+acs2 <- aggregate(steps~interval+IsWeekend, data=df2, mean)
+ggplot(acs2, aes(interval, steps)) + geom_line() + ggtitle('average daily steps by interval') + facet_grid(IsWeekend~.)
+
