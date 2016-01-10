@@ -4,6 +4,13 @@ grahams@pipeline.com
 
 ```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.2.3
+```
+
+```r
 library(lubridate)
 ```
 
@@ -46,7 +53,7 @@ head(df)
 
 
 ```r
-ms <- r <- aggregate(steps~dt, data=df, sum, na.rm=TRUE)
+ms <- aggregate(steps~dt, data=df, sum, na.rm=TRUE)
 ```
 histogram (not a graph of steps against days, but of num days per (binned) num steps)
 
@@ -113,24 +120,49 @@ We use option 2. (Some days have no measurements at all, weighting would be tric
 
 ```r
 df2 <- data.frame(df)
-df2$steps <- ifelse(is.na(df$steps), round(acs[which(acs$interval==df$interval),'steps']), df$steps)
+
+#this doesn't work, and I don't understand why
+#df2$steps <- ifelse(is.na(df2$steps), round(acs[which(df2$interval==acs$interval),'steps']), df2$steps)
+for (i in 1:nrow(df2)) {
+    if (is.na(df2$steps[i])) {
+        df2$steps[i] <- acs[which(df2$interval[i] == acs$interval), ]$steps
+    }
+}
 ```
+
+sanity check that the NAs are now gone (this is how I caught that the vectorized version didn't work)
+
+
+```r
+colSums(is.na(df2))
+```
+
+```
+##    steps     date interval       dt 
+##        0        0        0        0
+```
+
 now draw the new histogram
 
 
 ```r
-ms2 <- r <- aggregate(steps~dt, data=df2, sum)
+ms2 <- aggregate(steps~dt, data=df2, sum)
 
 
 qplot(ms2$steps, xlab='steps per day', ylab='frequency',  binwidth=1000)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
 
 mean steps per day = ``10,766``
-median steps per day = ``10,763``
+median steps per day = ``10,766``
 
-I don't see any difference here, which makes me think I've made a mistake.
+There isn't much difference here. Mean is the same - which makes sense (I think), since we're using the averages. Median changes slightly.
+
+Number of days with measurements before imputing ``53``
+Number of dats with measurements after imputing ``61``
+
+
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -143,4 +175,4 @@ acs2 <- aggregate(steps~interval+IsWeekend, data=df2, mean)
 ggplot(acs2, aes(interval, steps)) + geom_line() + ggtitle('average daily steps by interval') + facet_grid(IsWeekend~.)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
