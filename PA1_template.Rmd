@@ -25,25 +25,73 @@ head(df)
 
 
 ## What is mean total number of steps taken per day?
+
 ```{r echo=TRUE}
-ms <- tapply(df$steps, df$dt, sum, na.rm=TRUE)
+ms <- r <- aggregate(steps~dt, data=df, sum, na.rm=TRUE)
 
 ```
 histogram (not a graph of steps against days, but of num days per (binned) num steps)
 
 ``` {r echo=TRUE}
-qplot(ms, xlab='steps per day', ylab='frequency', binwidth=1000)
+qplot(ms$steps, xlab='steps per day', ylab='frequency',  binwidth=100)
 ```
 
-mean steps per day = ```r mean(ms) ```
-median steps per day = ```r median(ms) ```
+mean steps per day = ```r formatC(mean(ms$steps), format='d', big.mark=',') ```
+median steps per day = ```r formatC(median(ms$steps), format='d', big.mark=',') ```
 
 ## What is the average daily activity pattern?
+Here we look at the activity per 5 minute interval (these are numbered from 1 to 2355 per day) averaged over each day
+
+``` {r echo=TRUE}
+acs <- aggregate(steps~interval, data=df, mean, na.rm=TRUE)  
 
 
+ggplot(acs, aes(interval, steps)) + geom_line() + ggtitle('average daily steps by interval') 
+
+```
+
+Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+``` {r echo=TRUE}
+acs[which (acs$steps == max(acs$steps)),'interval']
+```
 
 ## Imputing missing values
 
+number of missing measurements:
 
+``` {r echo=TRUE}
+colSums(is.na(df))
+```
+
+there are ```r sum(is.na(df$steps)) ``` missing step measurements. All other entries are complete.
+
+
+There are two obvious strategies to fill in missing values. 
+
+1. Use the average for that day
+2. Use the average for that interval
+
+More elaborate strategies would look for trends/patterns etc.
+
+We use option 2. (Some days have no measurements at all, weighting would be tricky)
+
+``` {r echo=TRUE}
+df2 <- data.frame(df)
+df2$steps <- ifelse(is.na(df$steps), round(acs[which(acs$interval==df$interval),'steps']), df$steps)
+```
+now draw the new histogram
+
+```{r echo=TRUE}
+ms2 <- r <- aggregate(steps~dt, data=df2, sum)
+
+
+qplot(ms2$steps, xlab='steps per day', ylab='frequency',  binwidth=100)
+```
+
+mean steps per day = ```r formatC(mean(ms2$steps), format='d', big.mark=',')```
+median steps per day = ```r formatC(median(ms2$steps), format='d', big.mark=',') ```
+
+I don't see any difference here, which makes me think I've made a mistake.
 
 ## Are there differences in activity patterns between weekdays and weekends?
