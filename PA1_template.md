@@ -52,7 +52,7 @@ histogram (not a graph of steps against days, but of num days per (binned) num s
 
 
 ```r
-qplot(ms$steps, xlab='steps per day', ylab='frequency',  binwidth=100)
+qplot(ms$steps, xlab='steps per day', ylab='frequency',  binwidth=1000)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
@@ -122,7 +122,7 @@ now draw the new histogram
 ms2 <- r <- aggregate(steps~dt, data=df2, sum)
 
 
-qplot(ms2$steps, xlab='steps per day', ylab='frequency',  binwidth=100)
+qplot(ms2$steps, xlab='steps per day', ylab='frequency',  binwidth=1000)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
